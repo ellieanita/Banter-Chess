@@ -511,7 +511,7 @@
                             window.chessGame.reset();
                             syncBoard();
                             clearSelection();
-                        } else if (gameState.fen && window.chessGame.getFen() !== gameState.fen) {
+                        } else if (gameState.fen) {
                             window.chessGame.loadFen(gameState.fen);
                             syncBoard();
                         }
