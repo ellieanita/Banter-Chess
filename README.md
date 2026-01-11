@@ -32,7 +32,7 @@ Add the following HTML to your space's configuration, replacing the `src` URL wi
   Add this script tag to your Banter world's HTML.
   Example uses GitHub Pages. Replace `your-github-username` with your username.
 -->
-<script src="https://your-github-username.github.io/Banter-Chess/js/embed.js"></script>
+<script src="https://banter-chess.firer.at/js/embed.js"></script>
 ```
 
 The game will appear at the default position in your world.
@@ -49,7 +49,7 @@ You can customize the game's appearance and position by appending URL parameters
 **Example:**
 Place a smaller, rotated board inside your world.
 ```html
-<script src=".../embed.js?boardPosition=5+1.5+-2&boardScale=0.8&boardRotation=0+30+0"></script>
+<script src="https://banter-chess.firer.at/js/embed.js?boardPosition=5+1.5+-2&boardScale=0.8&boardRotation=0+30+0"></script>
 ```
 
 **Multiple Instances:**
@@ -57,10 +57,10 @@ To have multiple, independent chess games in the same space, add a unique `insta
 
 ```html
 <!-- Game in the Lobby -->
-<script src=".../embed.js?instance=lobby_game"></script>
+<script src="https://banter-chess.firer.at/js/embed.js?instance=lobby_game"></script>
 
 <!-- Game by the Fireside -->
-<script src=".../embed.js?instance=fireside_game&boardPosition=10+1+-5"></script>
+<script src="https://banter-chess.firer.at/js/embed.js?instance=fireside_game&boardPosition=10+1+-5"></script>
 ```
 
 ### All Parameters
