@@ -14,6 +14,7 @@
         resetScale: new BS.Vector3(1, 1, 1),
         instance: window.location.href.split('?')[0], // Default to current URL without query params to avoid mismatches
         hideUI: false,
+        hideBoard: false,
         lighting: 'unlit',
         addLights: true
     };
@@ -38,6 +39,7 @@
         const url = new URL(currentScript.src);
         const params = new URLSearchParams(url.search);
 
+        if (params.has('hideBoard')) config.hideBoard = params.get('hideBoard') === 'true';
         if (params.has('hideUI')) config.hideUI = params.get('hideUI') === 'true';
         if (params.has('instance')) config.instance = params.get('instance');
         if (params.has('lighting')) config.lighting = params.get('lighting');
@@ -255,6 +257,9 @@
 
                 tile.On('click', () => handleSquareClick(squareId));
                 state.tiles[squareId] = tile;
+
+                // Set initial color/transparency now that the tile is created
+                setMaterialColor(tile, isWhite ? COLORS.white : COLORS.black);
             }
         }
         // Initial Sync
@@ -471,8 +476,16 @@
         if (!go) return;
         const mat = go.GetComponent(BS.ComponentType.BanterMaterial);
         if (mat) {
-            // console.log("Setting color to", hexColor);
-            mat.color = hexToVector4(hexColor);
+            const newColor = hexToVector4(hexColor);
+            // If board is hidden, adjust tile alpha.
+            if (config.hideBoard && go.name.startsWith("Tile_")) {
+                if (hexColor === COLORS.selected || hexColor === COLORS.valid) {
+                    newColor.w = 0.5; // Make selection/valid moves semi-transparent
+                } else {
+                    newColor.w = 0; // Keep normal tiles fully transparent
+                }
+            }
+            mat.color = newColor;
         } else {
             console.warn("No BanterMaterial found on", go.name);
         }
