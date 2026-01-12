@@ -373,10 +373,12 @@
                     const colorVec4 = hexToVector4(colorHex);
                     colorVec4.w = config.piecesOpacity; // Set alpha
 
-                    // Use the transparent shader if opacity is less than 1
-                    const shader = config.piecesOpacity < 1.0 ? 'Unlit/DiffuseTransparent' : 'Unlit/Diffuse';
+                    const isTransparent = config.piecesOpacity < 1.0;
+                    // Use the transparent shader and texture if opacity is less than 1
+                    const shader = isTransparent ? 'Unlit/DiffuseTransparent' : 'Unlit/Diffuse';
+                    const texture = isTransparent ? 'https://banter-chess.firer.at/images/Transparent.png' : '';
                     
-                    await model.AddComponent(new BS.BanterMaterial(shader, "", colorVec4, BS.MaterialSide.Front, false));
+                    await model.AddComponent(new BS.BanterMaterial(shader, texture, colorVec4, BS.MaterialSide.Front, false));
                 }
             } catch (glbErr) {
                 console.error(`Failed to load GLTF for ${char}:`, glbErr);
