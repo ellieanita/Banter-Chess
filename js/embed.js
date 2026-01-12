@@ -15,6 +15,7 @@
         instance: window.location.href.split('?')[0], // Default to current URL without query params to avoid mismatches
         hideUI: false,
         hideBoard: false,
+        piecesOpacity: 1.0,
         lighting: 'unlit',
         addLights: true
     };
@@ -44,6 +45,13 @@
         if (params.has('instance')) config.instance = params.get('instance');
         if (params.has('lighting')) config.lighting = params.get('lighting');
         if (params.has('addLights')) config.addLights = params.get('addLights') !== 'false';
+
+        if (params.has('piecesOpacity')) {
+            const opacity = parseFloat(params.get('piecesOpacity'));
+            if (!isNaN(opacity)) {
+                config.piecesOpacity = Math.max(0, Math.min(1, opacity)); // Clamp between 0 and 1
+            }
+        }
 
         config.boardScale = parseVector3(params.get('boardScale'), config.boardScale);
         config.boardPosition = parseVector3(params.get('boardPosition'), config.boardPosition);
@@ -359,6 +367,16 @@
                     // This is a speculative change. It assumes adding a new BanterMaterial will
                     // override the material of the loaded GLTF. The "Standard" shader is also a guess.
                     await model.AddComponent(new BS.BanterMaterial("Standard", "", colorVec4, BS.MaterialSide.Front, false));
+                } else {
+                    // For unlit, we'll apply our own material to control color and transparency.
+                    const colorHex = isWhite ? COLORS.whitePiece : COLORS.blackPiece;
+                    const colorVec4 = hexToVector4(colorHex);
+                    colorVec4.w = config.piecesOpacity; // Set alpha
+
+                    // Use the transparent shader if opacity is less than 1
+                    const shader = config.piecesOpacity < 1.0 ? 'Unlit/DiffuseTransparent' : 'Unlit/Diffuse';
+                    
+                    await model.AddComponent(new BS.BanterMaterial(shader, "", colorVec4, BS.MaterialSide.Front, false));
                 }
             } catch (glbErr) {
                 console.error(`Failed to load GLTF for ${char}:`, glbErr);
