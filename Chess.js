@@ -331,12 +331,12 @@
         try {
             // Use the captured 'currentScript' variable from the top of the IIFE
             if (currentScript) {
-                // /Chess.js -> /models/Name.glb
-                return new URL(`/models/${modelName}`, currentScript.src).href;
+                // /Chess.js -> /Banter-Chess/models/Name.glb
+                return new URL(`/Banter-Chess/models/${modelName}`, currentScript.src).href;
             }
         } catch (e) { console.error("Error resolving model URL:", e); }
         // Fallback if script tag parsing failed
-        return `models/${modelName}`;
+        return `Banter-Chess/models/${modelName}`;
     }
 
     async function createPiece(char, squareId, parent) {
