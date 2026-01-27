@@ -12,7 +12,7 @@ This project provides a fully interactive 3D chess game that can be dropped into
 - **Customizable**: The board's position, rotation, and scale are easily configurable.
 
 ## How It Works
-The game operates using a single JavaScript file (`js/embed.js`) that you include in your Banter space.
+The game operates using a single JavaScript file (`Chess.js`) that you include in your Banter space.
 - **Game Logic**: Core chess rules, move validation, and FEN state management are handled by the powerful `chess.js` library.
 - **3D Rendering**: The board and pieces are created at runtime as `GameObject` instances using the Banter SDK. Piece models are loaded from the `models` directory.
 - **State Synchronization**: There is no server. When a player makes a move, the new game state (in FEN format) is written to Banter's `public` space state. All game clients listen for the `space-state-changed` event and update their boards accordingly, ensuring everyone stays in sync.
@@ -25,31 +25,31 @@ To add the chess board to your Banter world, you simply need to host these files
 Upload the contents of this repository to your static hosting provider.
 
 **2. Add to Banter**
-Add the following HTML to your space's configuration, replacing the `src` URL with the path to the `embed.js` file on your host.
+Add the following HTML to your space's configuration, replacing the `src` URL with the path to the `Chess.js` file on your host.
 
 ```html
 <!-- 
   Add this script tag to your Banter world's HTML.
   Example uses GitHub Pages. Replace `your-github-username` with your username.
 -->
-<script src="https://banter-chess.firer.at/js/embed.js"></script>
+<script src="https://banter-chess.firer.at/Chess.js"></script>
 ```
 
 The game will appear at the default position in your world.
 
 ## Project Structure
 - `index.html`: An example HTML file for loading the game. This can be used to test the game or as a basis for your Banter world's HTML.
-- `js/embed.js`: The all-in-one script that contains the game's logic, rendering, and networking code.
+- `Chess.js`: The all-in-one script that contains the game's logic, rendering, and networking code.
 - `models/`: Contains the `.glb` 3D models for the white and black chess pieces.
 - `README.md`: This file.
 
 ## Configuration
-You can customize the game's appearance and position by appending URL parameters to the `embed.js` script source.
+You can customize the game's appearance and position by appending URL parameters to the `Chess.js` script source.
 
 **Example:**
 Place a smaller, rotated board inside your world.
 ```html
-<script src="https://banter-chess.firer.at/js/embed.js?boardPosition=5+1.5+-2&boardScale=0.8&boardRotation=0+30+0"></script>
+<script src="https://banter-chess.firer.at/Chess.js?boardPosition=5+1.5+-2&boardScale=0.8&boardRotation=0+30+0"></script>
 ```
 
 **Multiple Instances:**
@@ -57,10 +57,10 @@ To have multiple, independent chess games in the same space, add a unique `insta
 
 ```html
 <!-- Game in the Lobby -->
-<script src="https://banter-chess.firer.at/js/embed.js?instance=lobby_game"></script>
+<script src="https://banter-chess.firer.at/Chess.js?instance=lobby_game"></script>
 
 <!-- Game by the Fireside -->
-<script src="https://banter-chess.firer.at/js/embed.js?instance=fireside_game&boardPosition=10+1+-5"></script>
+<script src="https://banter-chess.firer.at/Chess.js?instance=fireside_game&boardPosition=10+1+-5"></script>
 ```
 
 ### All Parameters
