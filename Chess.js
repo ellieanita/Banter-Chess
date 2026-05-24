@@ -68,26 +68,29 @@
     // --- Dependency Loading ---
     const loadScript = (src, globalName) => {
         return new Promise((resolve, reject) => {
-            // Case 1: Global is already available.
-            if (globalName && window[globalName]) {
+            // Helper to check if the global is ready (is a function if globalName is provided)
+            const isGlobalReady = () => globalName ? (typeof window[globalName] === 'function') : true;
+
+            // Case 1: Global is already available and ready.
+            if (globalName && isGlobalReady()) {
                 return resolve();
             }
 
-            // Case 2: Script tag exists but global is missing (Race condition or loading).
+            // Case 2: Script tag exists but global is missing or not ready.
             if (document.querySelector(`script[src="${src}"]`)) {
                 if (!globalName) return resolve(); // No global to check, assume fine.
 
-                // Poll for the global to become available
+                // Poll for the global to become available and ready
                 const maxAttempts = 50; // 5 seconds (100ms * 50)
                 let attempts = 0;
                 const interval = setInterval(() => {
                     attempts++;
-                    if (window[globalName]) {
+                    if (isGlobalReady()) {
                         clearInterval(interval);
                         resolve();
                     } else if (attempts >= maxAttempts) {
                         clearInterval(interval);
-                        reject(new Error(`Timeout waiting for global ${globalName} from ${src}`));
+                        reject(new Error(`Timeout waiting for global ${globalName} to be a function from ${src}`));
                     }
                 }, 100);
                 return;
@@ -98,10 +101,10 @@
             s.src = src;
             s.onload = () => {
                 // If we need a global, ensure it's there (rarely needs delay after onload for standard scripts)
-                if (globalName && !window[globalName]) {
+                if (globalName && !isGlobalReady()) { // Check if not ready after onload
                     // Fallback polling just in case
                     const interval = setInterval(() => {
-                         if (window[globalName]) { clearInterval(interval); resolve(); }
+                         if (isGlobalReady()) { clearInterval(interval); resolve(); }
                     }, 50);
                 } else {
                     resolve();
@@ -112,10 +115,35 @@
         });
     };
 
+    // New function to load chess.js as an ES Module and expose its Chess export globally
+    const loadChessModule = () => {
+        return new Promise((resolve, reject) => {
+            const s = document.createElement('script');
+            s.src = 'https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.13.4/chess.min.js';
+            s.type = 'module'; // Crucial: load as an ES Module
+            s.onload = async () => {
+                try {
+                    // Dynamic import the module to access its named exports
+                    const module = await import(s.src);
+                    // Assign the Chess constructor from the module's exports to the global window object
+                    window.Chess = module.Chess;
+                    resolve();
+                } catch (e) {
+                    console.error("Error dynamically importing chess.js module:", e);
+                    reject(e);
+                }
+            };
+            s.onerror = reject;
+            document.head.appendChild(s);
+        });
+    };
+
     const loadDependencies = async () => {
         const deps = [];
-        // We pass 'Chess' as the global variable name to wait for.
-        deps.push(loadScript('https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js', 'Chess'));
+        // Load chess.js using the new module loader
+        deps.push(loadChessModule());
+        // If you have other non-module dependencies, you can add them here using loadScript
+        // deps.push(loadScript('other-dependency.js', 'OtherGlobal'));
         await Promise.all(deps);
     };
 
