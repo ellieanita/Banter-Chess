@@ -44,33 +44,37 @@ The game will appear at the default position in your world.
 - `README.md`: This file.
 
 ## Configuration
-You can customize the game's appearance and position by appending URL parameters to the `Chess.js` script source.
+You can customize the game's appearance and behavior using **HTML script attributes** (recommended) or legacy **URL query parameters** (for backwards compatibility).
 
-**Example:**
-Place a smaller, rotated board inside your world.
+**HTML Script Attributes Example:**
+```html
+<script src="https://banter-chess.firer.at/Chess.js" boardPosition="5 1.5 -2" boardScale="0.8" boardRotation="0 30 0"></script>
+```
+
+**Legacy URL Query Parameters Example:**
 ```html
 <script src="https://banter-chess.firer.at/Chess.js?boardPosition=5+1.5+-2&boardScale=0.8&boardRotation=0+30+0"></script>
 ```
 
-**Multiple Instances:**
-To have multiple, independent chess games in the same space, add a unique `instance` name to each script URL.
+**Multiple Instances (using Attributes):**
+To have multiple, independent chess games in the same space, add a unique `instance` name.
 
 ```html
 <!-- Game in the Lobby -->
-<script src="https://banter-chess.firer.at/Chess.js?instance=lobby_game"></script>
+<script src="https://banter-chess.firer.at/Chess.js" instance="lobby_game"></script>
 
 <!-- Game by the Fireside -->
-<script src="https://banter-chess.firer.at/Chess.js?instance=fireside_game&boardPosition=10+1+-5"></script>
+<script src="https://banter-chess.firer.at/Chess.js" instance="fireside_game" boardPosition="10 1 -5"></script>
 ```
 
-### All Parameters
+### All Attributes / Parameters
 - `instance`: A unique ID for the game board. Use this to have multiple separate games in one Banter space. (Default: the page URL)
-- `boardPosition`: The `x y z` position of the board in the world. (Default: `0 1.1 -2`)
-- `boardRotation`: The `x y z` rotation of the board in degrees. (Default: `0 0 0`)
-- `boardScale`: A uniform scale `s` or per-axis `x y z` scale. (Default: `1`)
+- `boardPosition` / `position` / `board-position`: The `x y z` position of the board in the world. (Default: `0 1.1 -2`)
+- `boardRotation` / `rotation` / `board-rotation`: The `x y z` rotation of the board in degrees. (Default: `0 0 0`)
+- `boardScale` / `scale` / `board-scale`: A uniform scale `s` or per-axis `x y z` scale. (Default: `1`)
 - `lighting`: Set to `lit` to use physically-based lit materials that respond to scene lights. (Default: `unlit`)
-- `addLights`: When `lighting=lit`, this controls whether a default directional light is added. Set to `false` if you have your own lights. (Default: `true`)
-- `hideUI`: Set to `true` to hide the Reset button. (Default: `false`)
-- `resetPosition`: The `x y z` position of the reset button relative to the board. (Default: `0 0 2.5`)
-- `resetRotation`: The `x y z` rotation of the reset button. (Default: `0 0 0`)
-- `resetScale`: The `x y z` scale of the reset button. (Default: `1 1 1`)
+- `addLights` / `add-lights`: When `lighting=lit`, this controls whether a default directional light is added. Set to `false` if you have your own lights. (Default: `true`)
+- `hideUI` / `hide-ui`: Set to `true` to hide the Reset button. (Default: `false`)
+- `resetPosition` / `reset-position`: The `x y z` position of the reset button relative to the board. (Default: `0 0 2.5`)
+- `resetRotation` / `reset-rotation`: The `x y z` rotation of the reset button. (Default: `0 0 0`)
+- `resetScale` / `reset-scale`: The `x y z` scale of the reset button. (Default: `1 1 1`)

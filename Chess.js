@@ -34,35 +34,110 @@
         return defaultVal;
     };
 
-    // Parse URL params from this script tag immediately
+    // Parse URL params or script attributes from this script tag immediately
     const currentScript = document.currentScript;
     const scriptSrc = currentScript ? currentScript.src : null;
 
     if (currentScript) {
-        const url = new URL(currentScript.src);
-        const params = new URLSearchParams(url.search);
+        const getParam = (name, defaultValue) => {
+            if (!currentScript) return defaultValue;
+            
+            const getFromURL = (key) => {
+                try {
+                    const base = typeof window !== 'undefined' ? window.location.href : 'http://localhost';
+                    const url = new URL(currentScript.src, base);
+                    const params = new URLSearchParams(url.search);
+                    if (params.has(key)) return params.get(key);
+                    const lowerKey = key.toLowerCase();
+                    for (const [pKey, pVal] of params.entries()) {
+                        if (pKey.toLowerCase() === lowerKey) {
+                            return pVal;
+                        }
+                    }
+                } catch (e) {}
+                return null;
+            };
 
-        if (params.has('hideBoard')) config.hideBoard = params.get('hideBoard') === 'true';
-        if (params.has('hideUI')) config.hideUI = params.get('hideUI') === 'true';
-        if (params.has('instance')) config.instance = params.get('instance');
-        if (params.has('lighting')) config.lighting = params.get('lighting');
-        if (params.has('addLights')) config.addLights = params.get('addLights') !== 'false';
+            const getFromScriptTag = (key) => {
+                try {
+                    if (currentScript.hasAttribute(key)) {
+                        return currentScript.getAttribute(key);
+                    }
+                    const lowerKey = key.toLowerCase();
+                    if (currentScript.hasAttribute(lowerKey)) {
+                        return currentScript.getAttribute(lowerKey);
+                    }
+                    const datasetKey = key.replace(/-([a-z])/g, (g) => g[1].toUpperCase());
+                    if (currentScript.dataset && currentScript.dataset[datasetKey] !== undefined) {
+                        return currentScript.dataset[datasetKey];
+                    }
+                } catch (e) {}
+                return null;
+            };
 
-        if (params.has('piecesOpacity')) {
-            const opacity = parseFloat(params.get('piecesOpacity'));
+            const keys = [name];
+            const aliases = {
+                boardPosition: ['position', 'board-position'],
+                boardRotation: ['rotation', 'board-rotation'],
+                boardScale: ['scale', 'board-scale'],
+                hideUI: ['hide-ui'],
+                hideBoard: ['hide-board'],
+                useCustomModels: ['use-custom-models'],
+                addLights: ['add-lights'],
+                useAOBaking: ['use-ao-baking'],
+                boardSize: ['board-size'],
+                piecesOpacity: ['pieces-opacity'],
+                scoreboardPosition: ['scoreboard-position'],
+                scoreboardRotation: ['scoreboard-rotation'],
+                scoreboardScale: ['scoreboard-scale'],
+                resetPosition: ['reset-position'],
+                resetRotation: ['reset-rotation'],
+                resetScale: ['reset-scale'],
+                passPosition: ['pass-position'],
+                passRotation: ['pass-rotation'],
+                passScale: ['pass-scale']
+            };
+
+            if (aliases[name]) {
+                aliases[name].forEach(alias => {
+                    if (!keys.includes(alias)) keys.push(alias);
+                });
+            }
+
+            for (const key of keys) {
+                const val = getFromURL(key);
+                if (val !== null) return val;
+            }
+            for (const key of keys) {
+                const val = getFromScriptTag(key);
+                if (val !== null) return val;
+            }
+
+            return defaultValue;
+        };
+
+        config.hideBoard = getParam('hideBoard', String(config.hideBoard)) === 'true';
+        config.hideUI = getParam('hideUI', String(config.hideUI)) === 'true';
+        config.instance = getParam('instance', config.instance);
+        config.lighting = getParam('lighting', config.lighting);
+        config.addLights = getParam('addLights', String(config.addLights)) !== 'false';
+
+        const opacityStr = getParam('piecesOpacity');
+        if (opacityStr) {
+            const opacity = parseFloat(opacityStr);
             if (!isNaN(opacity)) {
                 config.piecesOpacity = Math.max(0, Math.min(1, opacity)); // Clamp between 0 and 1
             }
         }
 
         // Store as arrays for now
-        config.boardScale = parseVector3(params.get('boardScale'), config.boardScale);
-        config.boardPosition = parseVector3(params.get('boardPosition'), config.boardPosition);
-        config.boardRotation = parseVector3(params.get('boardRotation'), config.boardRotation);
+        config.boardScale = parseVector3(getParam('boardScale'), config.boardScale);
+        config.boardPosition = parseVector3(getParam('boardPosition'), config.boardPosition);
+        config.boardRotation = parseVector3(getParam('boardRotation'), config.boardRotation);
 
-        config.resetPosition = parseVector3(params.get('resetPosition'), config.resetPosition);
-        config.resetRotation = parseVector3(params.get('resetRotation'), config.resetRotation);
-        config.resetScale = parseVector3(params.get('resetScale'), config.resetScale);
+        config.resetPosition = parseVector3(getParam('resetPosition'), config.resetPosition);
+        config.resetRotation = parseVector3(getParam('resetRotation'), config.resetRotation);
+        config.resetScale = parseVector3(getParam('resetScale'), config.resetScale);
     }
 
     // --- Dependency Loading ---
